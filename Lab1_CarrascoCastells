@@ -1,0 +1,631 @@
+Task1
+Run the above code and interpret the results. Please note the output of the model is the prediction of class labels of each of the four points. If you run the code several times, will you observe the same results? Why? Keep the parameter “n_unit=1” and increase the number of iterations starting from 10, 50, 100, 500, 2000, and compare the loss values. What can you conclude from increasing the number of iterations? Now, with a fixed value of “iterations = 1000”, increase the parameter “n_unit” to 2, 5, 10 and interpret the results
+
+1
+# Logic Operator
+2
+import numpy as np
+3
+import matplotlib.pyplot as plt
+4
+# Sigmoid function
+5
+def sigmoid(x):
+6
+  return 1.0/(1+ np.exp(-x))
+7
+​
+8
+# derivative of Sigmoid function for backprop.
+9
+def sigmoid_derivative(x):
+10
+  return x * (1.0 - x)
+11
+​
+12
+class NeuralNetwork:
+13
+  def __init__(self, x, y, N):
+14
+    self.input = x
+15
+    self.neuron = N
+16
+    self.weights1 = np.random.rand(self.input.shape[1], self.neuron) # X dimension input connected to N neurons
+17
+    self.weights2 = np.random.rand(self.neuron, 1) # N neurons connected to output
+18
+    self.y = y
+19
+    self.output = np.zeros(self.y.shape) # instantiating the output
+20
+  def feedforward(self):
+21
+    self.layer1 = sigmoid(np.dot(self.input, self.weights1))
+22
+    self.output = sigmoid(np.dot(self.layer1, self.weights2))
+23
+  def backprop(self):
+24
+    # Chain rule to calculate derivative of the loss function with respect to weights2 and weights1
+25
+    d_weights2 = np.dot(self.layer1.T,(2*(self.y - self.output)* sigmoid_derivative(self.output)))
+26
+    d_weights1 = np.dot(self.input.T,(np.dot(2*(self.y - self.output)* sigmoid_derivative(self.output),self.weights2.T) * sigmoid_derivative(self.layer1)))
+27
+    # weights updating
+28
+    self.weights1 += d_weights1
+29
+    self.weights2 += d_weights2
+30
+iterations = 2000
+31
+n_unit = 1
+32
+if __name__ == "__main__":
+33
+  Input = np.array([[0,0,1],
+34
+  [0,1,1],
+35
+  [1,0,1],
+36
+  [1,1,1]])
+37
+  Target = np.array([[0],[0],[0],[1]])
+38
+  model = NeuralNetwork(Input, Target, n_unit)
+39
+  SSD = []
+40
+  for i in range(iterations):
+41
+    model.feedforward()
+42
+    model.backprop()
+43
+    errors = (Target - model.output)**2
+44
+    SSD.append(np.sum(errors)) # Objective(loss) function
+45
+Itr = np.linspace(1,len(SSD),len(SSD))
+46
+plt.plot(Itr, SSD)
+47
+plt.xlabel('Iterations')
+48
+plt.ylabel('SSD')
+49
+print("The target values are:", Target)
+50
+print("The predicted values are:", model.output)
+The target values are: [[0]
+ [0]
+ [0]
+ [1]]
+The predicted values are: [[4.59005297e-04]
+ [1.84327274e-02]
+ [1.84327274e-02]
+ [4.98102085e-01]]
+When running the code several times with the same number of iterations, the result keep changing. That's because the starting values for the weights are generated randomly. This makes that with a small number of iterations the variations are bigger. When increasing the number of iterations the loss values decrease until reaching a value around 0.2. However, increasing the parameter ''n_units'' it decreases the loss value more quickly than with iterations. Then the predicted values are closer to the target values.
+
+Task2
+Repeat task1 for XOR logic operator. For fixed values of parameters (iterations=2000, and n_unit=1), which of the AND or XOR operators has lower loss values? Why? Increase the number of neurons in the hidden layer (n_unit) to 2, 5, 10, 50. Does increasing the number of neurons improve the results? Why
+
+1
+​
+2
+# Logic Operator
+3
+import numpy as np
+4
+import matplotlib.pyplot as plt
+5
+# Sigmoid function
+6
+def sigmoid(x):
+7
+  return 1.0/(1+ np.exp(-x))
+8
+​
+9
+# derivative of Sigmoid function for backprop.
+10
+def sigmoid_derivative(x):
+11
+  return x * (1.0 - x)
+12
+​
+13
+class NeuralNetwork:
+14
+  def __init__(self, x, y, N):
+15
+    self.input = x
+16
+    self.neuron = N
+17
+    self.weights1 = np.random.rand(self.input.shape[1], self.neuron) # X dimension input connected to N neurons
+18
+    self.weights2 = np.random.rand(self.neuron, 1) # N neurons connected to output
+19
+    self.y = y
+20
+    self.output = np.zeros(self.y.shape) # instantiating the output
+21
+  def feedforward(self):
+22
+    self.layer1 = sigmoid(np.dot(self.input, self.weights1))
+23
+    self.output = sigmoid(np.dot(self.layer1, self.weights2))
+24
+  def backprop(self):
+25
+    # Chain rule to calculate derivative of the loss function with respect to weights2 and weights1
+26
+    d_weights2 = np.dot(self.layer1.T,(2*(self.y - self.output)* sigmoid_derivative(self.output)))
+27
+    d_weights1 = np.dot(self.input.T,(np.dot(2*(self.y - self.output)* sigmoid_derivative(self.output),self.weights2.T) * sigmoid_derivative(self.layer1)))
+28
+    # weights updating
+29
+    self.weights1 += d_weights1
+30
+    self.weights2 += d_weights2
+31
+iterations = 2000
+32
+n_unit = 10
+33
+if __name__ == "__main__":
+34
+  Input = np.array([[0,0,1],
+35
+  [0,1,1],
+36
+  [1,0,1],
+37
+  [1,1,1]])
+38
+  Target = np.array([[1],[0],[0],[1]])
+39
+  model = NeuralNetwork(Input, Target, n_unit)
+40
+  SSD = []
+41
+  for i in range(iterations):
+42
+    model.feedforward()
+43
+    model.backprop()
+44
+    errors = (Target - model.output)**2
+45
+    SSD.append(np.sum(errors)) # Objective(loss) function
+46
+Itr = np.linspace(1,len(SSD),len(SSD))
+47
+plt.plot(Itr, SSD)
+48
+plt.xlabel('Iterations')
+49
+plt.ylabel('SSD')
+50
+print("The target values are:", Target)
+51
+print("The predicted values are:", model.output)
+52
+​
+53
+# Logic operator with Tensorflow Keras
+54
+import numpy as np
+55
+from tensorflow.keras.models import Sequential
+56
+from tensorflow.keras.layers import Dense
+57
+from tensorflow.keras.optimizers import SGD
+58
+Input = np.array([[0,0],[0,1],[1,0],[1,1]], "float32")
+59
+Target = np.array([[0],[1],[1],[0]], "float32")
+60
+n_unit = 10
+61
+model = Sequential()
+62
+model.add(Dense(n_unit, input_dim=2, activation='relu'))
+63
+model.add(Dense(1, activation='sigmoid'))
+64
+model.compile(loss='mean_squared_error',
+65
+ optimizer = SGD(lr = 0.01),
+66
+ metrics=['binary_accuracy'])
+67
+model.fit(Input, Target, epochs = 2000, verbose=0)
+68
+print("The predicted class labels are:", model.predict(Input))
+69
+​
+The target values are: [[1]
+ [0]
+ [0]
+ [1]]
+The predicted values are: [[0.98334936]
+ [0.01909332]
+ [0.01598644]
+ [0.98172658]]
+/usr/local/lib/python3.8/dist-packages/keras/optimizers/optimizer_v2/gradient_descent.py:108: UserWarning: The `lr` argument is deprecated, use `learning_rate` instead.
+  super(SGD, self).__init__(name, **kwargs)
+1/1 [==============================] - 0s 37ms/step
+The predicted class labels are: [[0.46787903]
+ [0.7025447 ]
+ [0.59275514]
+ [0.3273511 ]]
+We can see that AND has lower loss values than XOR (0.99).
+
+AND operator is easily to learn by the neural network, beacuse is linearly separable and simple logical operation. It outputs a 1 only when both input values are 1 and outputs 0 for all other input combinations.
+
+XOR operator is more dificult to learn beacuse is a more complex logical operation and not linearly separable. It outputs a 1 only when exactly one of the input values is 1 and outputs 0 for all other input combinations. So,it requires a more complex representations.
+
+On the other hand, when increasing the number of neurons in the hidden layer, we can see that the results improve. Obtaining outputs closer to the target and also reducing the loss value.
+
+Task3
+In the above code, change the parameter “n_unit” as 1, 10 and interpret the observed results.
+
+Using Tensorflow code is quickly (0,35ms/step) and more accurate to the target values. In addition, tensorflow and numpy obtain quite similar results.
+
+Task 4
+Review the following data loader code and find out how it works. Run it to load the training and test data.
+
+1
+# Data Loader
+2
+import os
+3
+import numpy as np
+4
+from random import shuffle
+5
+from skimage.io import imread
+6
+from skimage.transform import resize
+7
+def gen_labels(im_name, pat1, pat2):
+8
+​
+9
+     '''
+10
+     Parameters
+11
+     ----------
+12
+     im_name : Str
+13
+     The image file name.
+14
+     pat1 : Str
+15
+     A string pattern in the filename for 1st class, e.g "Mel"
+16
+     pat2 : Str
+17
+     A string pattern in the filename 2nd class, e.g, "Nev"
+18
+     Returns
+19
+     -------
+20
+     Label : Numpy array
+21
+     Class label of the filename name based on its pattern.
+22
+     '''
+23
+     if pat1 in im_name:
+24
+         label = np.array([0])
+25
+     elif pat2 in im_name:
+26
+         label = np.array([1])
+27
+     return label
+28
+def get_data(data_path, data_list, img_h, img_w):
+29
+    img_labels = []
+30
+    """
+31
+     Parameters
+32
+     ----------
+33
+     train_data_path : Str
+34
+     Path to the data directory
+35
+     train_list : List
+36
+     A list containing the name of the images.
+37
+     img_h : Int
+38
+     image height to be resized to.
+39
+     img_w : Int
+40
+     image width to be resized to.
+41
+     Returns
+42
+     -------
+43
+     img_labels : Nested List
+44
+     A nested list containing the loaded images along with their
+45
+     correcponding labels.
+46
+     """
+47
+    for item in enumerate(data_list):
+48
+         img = imread(os.path.join(data_path, item[1]), as_gray = True) # "as_grey"
+49
+         img = resize(img, (img_h, img_w), anti_aliasing = True).astype('float32')
+50
+         img_labels.append([np.array(img), gen_labels(item[1], 'Mel', 'Nev')])
+51
+​
+52
+         if item[0] % 100 == 0:
+53
+             print('Reading: {0}/{1} of train images'.format(item[0], len(data_list)))
+54
+    shuffle(img_labels)
+55
+    return img_labels
+56
+​
+57
+def get_data_arrays(nested_list, img_h, img_w):
+58
+     """
+59
+     Parameters
+60
+     ----------
+61
+     nested_list : nested list
+62
+     nested list of image arrays with corresponding class labels.
+63
+     img_h : Int
+64
+     Image height.
+65
+     img_w : Int
+66
+     Image width.
+67
+    6
+68
+    Deep Learning Methods for Medical Image Analysis (CM2003)
+69
+    Laboratory Assignment 1
+70
+     Returns
+71
+     -------
+72
+     img_arrays : Numpy array
+73
+     4D Array with the size of (n_data,img_h,img_w, 1)
+74
+     label_arrays : Numpy array
+75
+     1D array with the size (n_data).
+76
+     """
+77
+     img_arrays = np.zeros((len(nested_list), img_h, img_w), dtype = np.float32)
+78
+     label_arrays = np.zeros((len(nested_list)), dtype = np.int32)
+79
+     for ind in range(len(nested_list)):
+80
+         img_arrays[ind] = nested_list[ind][0]
+81
+         label_arrays[ind] = nested_list[ind][1]
+82
+     img_arrays = np.expand_dims(img_arrays, axis =3)
+83
+     return img_arrays, label_arrays
+84
+​
+85
+def get_train_test_arrays(train_data_path, test_data_path, train_list,
+86
+ test_list, img_h, img_w):
+87
+     """
+88
+     Get the directory to the train and test sets, the files names and
+89
+     the size of the image and return the image and label arrays for
+90
+     train and test sets.
+91
+     """
+92
+​
+93
+     train_data = get_data(train_data_path, train_list, img_h, img_w)
+94
+     test_data = get_data(test_data_path, test_list, img_h, img_w)
+95
+​
+96
+     train_img, train_label = get_data_arrays(train_data, img_h, img_w)
+97
+     test_img, test_label = get_data_arrays(test_data, img_h, img_w)
+98
+     del(train_data)
+99
+     del(test_data)
+100
+     return train_img, test_img, train_label, test_label
+101
+​
+102
+img_w, img_h = 128, 128 # Setting the width and heights of the images.
+103
+data_path = '../Data/Lab1/Skin/' # Path to data root with two subdirs.
+104
+train_data_path = os.path.join(data_path, 'train')
+105
+test_data_path = os.path.join(data_path, 'test')
+106
+train_list = os.listdir(train_data_path)
+107
+test_list = os.listdir(test_data_path)
+108
+x_train, x_test, y_train, y_test = get_train_test_arrays(train_data_path, test_data_path,train_list, test_list, img_h, img_w)
+Reading: 0/1000 of train images
+Reading: 100/1000 of train images
+Reading: 200/1000 of train images
+Reading: 300/1000 of train images
+Reading: 400/1000 of train images
+Reading: 500/1000 of train images
+Reading: 600/1000 of train images
+Reading: 700/1000 of train images
+Reading: 800/1000 of train images
+Reading: 900/1000 of train images
+Reading: 0/200 of train images
+Reading: 100/200 of train images
+Task 5
+Develop a 4-layers MLP. If you call the number of neurons in the first fully-connected layer as “base_dense”, this 4-layers MLP should contain “base_dense”, “base_dense//2”, and “base_dense//4” as the number of neurons in the first 3 layers respectively. The activation function of all those neurons should set as “Relu”. However, in the last layer (4th layer), choose a proper number of neurons as well as activation function(s) that fit the binary classification task. Develop your model as a function, and remember to, first, import all the required layers/tools from tensorflow.
+
+1
+import tensorflow as tf
+2
+​
+3
+def create_mlp_model(base_dense, num_classes):
+4
+    model = tf.keras.Sequential()
+5
+    
+6
+    # First fully-connected layer with base_dense neurons and ReLU activation
+7
+    model.add(tf.keras.layers.Dense(base_dense, activation='relu', input_shape=(input_shape,)))
+8
+    
+9
+    # Second fully-connected layer with base_dense//2 neurons and ReLU activation
+10
+    model.add(tf.keras.layers.Dense(base_dense // 2, activation='relu'))
+11
+    
+12
+    # Third fully-connected layer with base_dense//4 neurons and ReLU activation
+13
+    model.add(tf.keras.layers.Dense(base_dense // 4, activation='relu'))
+14
+    
+15
+    # Fourth fully-connected layer for binary classification task
+16
+    # Use 1 neuron and a sigmoid activation function for binary classification
+17
+    model.add(tf.keras.layers.Dense(1, activation='sigmoid'))
+18
+    
+19
+    return model
+20
+​
+21
+# Example usage with base_dense=64 and binary classification task
+22
+base_dense = 64
+23
+num_classes = 2
+24
+input_shape =  4  # Define your input shape here
+25
+​
+26
+# Create the model
+27
+mlp_model = create_mlp_model(base_dense, num_classes)
+28
+​
+29
+# Compile the model with an appropriate loss function (e.g., binary cross-entropy) and optimizer
+30
+mlp_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+31
+​
+32
+# Print a summary of the model architecture
+33
+mlp_model.summary()
+34
+​
+35
+​
+36
+#Segona part
+37
+from tensorflow.keras.layers import Input, Dense, Flatten
+38
+def model(img_width, img_height, img_ch, base_dense):
+39
+    """
+40
+    Functional API model.
+41
+    name the last layer as "out"; e.g., out = ....
+42
+    """
+43
+    input_size = (img_width, img_height, img_ch)
+44
+    inputs_layer = Input(shape=input_size, name='input_layer')
+45
+    # TODO
+46
+    clf = Model(inputs=inputs_layer, outputs=out)
+47
+    clf.summary()
+48
+    clf_hist = clf.fit(...)
+49
+    return clf
+Model: "sequential_20"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ dense_48 (Dense)            (None, 64)                320       
+                                                                 
+ dense_49 (Dense)            (None, 32)                2080      
+                                                                 
+ dense_50 (Dense)            (None, 16)                528       
+                                                                 
+ dense_51 (Dense)            (None, 1)                 17        
+                                                                 
+=================================================================
+Total params: 2,945
+Trainable params: 2,945
+Non-trainable params: 0
+______________________________
